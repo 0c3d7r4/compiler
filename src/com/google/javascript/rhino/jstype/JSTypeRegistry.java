@@ -1110,7 +1110,7 @@ public final class JSTypeRegistry {
   // we don't need to store these properties in the propertyIndex separately.
   private static boolean isObjectLiteralThatCanBeSkipped(JSType t) {
     t = t.restrictByNotNullOrUndefined();
-    return t.isRecordType() || t.isLiteralObject();
+    return (t.isRecordType() || t.isLiteralObject()) && !t.isFromEmptyObjLitExtern();
   }
 
   void registerDroppedPropertiesInUnion(RecordType subtype, RecordType supertype) {
@@ -1777,7 +1777,16 @@ public final class JSTypeRegistry {
    * @param info Used to mark object literals as structs; can be {@code null}
    */
   public ObjectType createAnonymousObjectType(@Nullable JSDocInfo info) {
-    PrototypeObjectType type = PrototypeObjectType.builder(this).setAnonymous(true).build();
+	   PrototypeObjectType type = PrototypeObjectType.builder(this).setAnonymous(true).build();
+    type.setPrettyPrint(true);
+    type.setJSDocInfo(info);
+    return type;
+  }
+  public ObjectType createAnonymousObjectType(@Nullable JSDocInfo info, boolean fromExternsEmptyObjLit) {
+	   PrototypeObjectType type = PrototypeObjectType.builder(this)
+	       .setAnonymous(true)
+	       .setFromExternsEmptyObjectLit(fromExternsEmptyObjLit)
+	       .build();
     type.setPrettyPrint(true);
     type.setJSDocInfo(info);
     return type;
